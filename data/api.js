@@ -1,0 +1,167 @@
+/*
+ * API Pentest Checklist
+ * Levels: basic | intermediate | advanced
+ * Item IDs are stable identifiers used for saved progress and markdown import.
+ * Aligned to the OWASP API Security Top 10:2023. Reference / checklist altitude.
+ */
+window.CHECKLISTS = window.CHECKLISTS || {};
+window.CHECKLISTS.api = {
+  id: "api",
+  title: "API Pentest",
+  ref: "OWASP API Security Top 10:2023",
+  description: "REST / GraphQL API testing checklist, basics to advanced.",
+  sections: [
+    {
+      id: "recon",
+      title: "API Discovery & Documentation",
+      wstg: "—",
+      items: [
+        { id: "API-RECON-01", l: "basic", t: "Collect API documentation and specs",
+          d: "Gather OpenAPI/Swagger, GraphQL schema, Postman collections and vendor docs. Note versions and environments." },
+        { id: "API-RECON-02", l: "basic", t: "Enumerate endpoints and methods",
+          d: "Build a complete inventory of routes, methods, parameters and content types, including those absent from the docs." },
+        { id: "API-RECON-03", l: "intermediate", t: "Discover undocumented and shadow endpoints",
+          d: "Compare deployed routes against documentation; look for deprecated, internal or debug endpoints still reachable." },
+        { id: "API-RECON-04", l: "intermediate", t: "Enumerate API versions",
+          d: "Identify multiple concurrent versions (v1, v2, beta) and test older versions that may lack current controls." },
+        { id: "API-RECON-05", l: "intermediate", t: "Introspect GraphQL schema",
+          d: "Where enabled, use introspection to map types, queries, mutations and subscriptions and identify sensitive operations." }
+      ]
+    },
+    {
+      id: "authn",
+      title: "Authentication (API2)",
+      wstg: "API2:2023",
+      items: [
+        { id: "API-ATHN-01", l: "basic", t: "Test for missing authentication",
+          d: "Confirm every non-public endpoint requires authentication, including undocumented and version variants." },
+        { id: "API-ATHN-02", l: "basic", t: "Review API key handling",
+          d: "Assess key transmission, scope, rotation and whether keys are exposed in client code or URLs." },
+        { id: "API-ATHN-03", l: "intermediate", t: "Test token validation",
+          d: "Review bearer/JWT signature verification, expiry, audience/issuer checks and handling of malformed tokens." },
+        { id: "API-ATHN-04", l: "intermediate", t: "Test credential and token brute-force protection",
+          d: "Assess rate limiting and lockout on token, login and refresh endpoints." },
+        { id: "API-ATHN-05", l: "advanced", t: "Test OAuth2 / OIDC grant flows",
+          d: "Review redirect validation, scope handling, token exchange and refresh-token rotation and revocation." }
+      ]
+    },
+    {
+      id: "bola",
+      title: "Object-Level Authorization (API1)",
+      wstg: "API1:2023",
+      items: [
+        { id: "API-BOLA-01", l: "basic", t: "Test BOLA / IDOR on object identifiers",
+          d: "Substitute other users' object IDs across endpoints and confirm per-object ownership checks server-side." },
+        { id: "API-BOLA-02", l: "intermediate", t: "Test nested and related object access",
+          d: "Access child or related objects via parent endpoints and confirm authorization applies to the full object graph." },
+        { id: "API-BOLA-03", l: "intermediate", t: "Test predictable and enumerable identifiers",
+          d: "Assess whether sequential or guessable IDs enable enumeration of records." },
+        { id: "API-BOLA-04", l: "advanced", t: "Test object access via alternate methods",
+          d: "Compare authorization across GET/POST/PUT/PATCH/DELETE and bulk endpoints for the same object." }
+      ]
+    },
+    {
+      id: "bfla",
+      title: "Function-Level Authorization (API5)",
+      wstg: "API5:2023",
+      items: [
+        { id: "API-BFLA-01", l: "basic", t: "Test access to administrative functions",
+          d: "Attempt privileged operations as a standard user and confirm role enforcement on the server." },
+        { id: "API-BFLA-02", l: "intermediate", t: "Test method-based function access",
+          d: "Try alternate HTTP methods on the same path to reach functions the UI does not expose to the role." },
+        { id: "API-BFLA-03", l: "advanced", t: "Test group and role boundary logic",
+          d: "Review complex role hierarchies and delegated permissions for gaps between defined and enforced access." }
+      ]
+    },
+    {
+      id: "propauthz",
+      title: "Property-Level Authorization (API3)",
+      wstg: "API3:2023",
+      items: [
+        { id: "API-PROP-01", l: "intermediate", t: "Test mass assignment / auto-binding",
+          d: "Submit additional properties (e.g. role, verified, balance) to see if the API binds them without allow-listing." },
+        { id: "API-PROP-02", l: "intermediate", t: "Test excessive data exposure",
+          d: "Inspect responses for fields beyond what the client needs (internal flags, other users' data, PII)." },
+        { id: "API-PROP-03", l: "advanced", t: "Test field-level authorization in GraphQL",
+          d: "Confirm sensitive fields and mutations enforce authorization independently of the containing query." }
+      ]
+    },
+    {
+      id: "resources",
+      title: "Resource Consumption (API4)",
+      wstg: "API4:2023",
+      items: [
+        { id: "API-RES-01", l: "basic", t: "Test rate limiting and quotas",
+          d: "Assess presence and effectiveness of rate limits per client, token and endpoint." },
+        { id: "API-RES-02", l: "intermediate", t: "Test pagination and result-size limits",
+          d: "Attempt oversized page sizes and unbounded queries that could exhaust resources." },
+        { id: "API-RES-03", l: "advanced", t: "Test GraphQL query cost and depth",
+          d: "Assess depth limiting, complexity analysis and aliasing/batching abuse that amplify server work." },
+        { id: "API-RES-04", l: "advanced", t: "Test resource-intensive operations",
+          d: "Review file processing, exports and integrations for cost controls against amplification abuse." }
+      ]
+    },
+    {
+      id: "input",
+      title: "Input Validation & Injection",
+      wstg: "—",
+      items: [
+        { id: "API-INPV-01", l: "basic", t: "Test injection in parameters and bodies",
+          d: "Assess SQL/NoSQL/command/expression injection across query, path, header and JSON/XML body inputs." },
+        { id: "API-INPV-02", l: "intermediate", t: "Test SSRF via URL parameters",
+          d: "Identify server-side fetches driven by input and assess reach to internal services and metadata endpoints." },
+        { id: "API-INPV-03", l: "intermediate", t: "Test content-type and parser handling",
+          d: "Send unexpected content types and malformed bodies to probe parser behaviour and validation gaps." },
+        { id: "API-INPV-04", l: "intermediate", t: "Test file upload endpoints",
+          d: "Assess type/size validation and downstream processing of uploaded content." },
+        { id: "API-INPV-05", l: "advanced", t: "Test deserialization of untrusted input",
+          d: "Review endpoints that deserialize input for unsafe type handling." }
+      ]
+    },
+    {
+      id: "ssrf-inv",
+      title: "Business Logic & Inventory",
+      wstg: "API6/API9/API10:2023",
+      items: [
+        { id: "API-BIZ-01", l: "intermediate", t: "Test sensitive business flows (API6)",
+          d: "Identify automatable high-value flows (purchase, transfer, signup) and assess anti-automation controls." },
+        { id: "API-INV-01", l: "intermediate", t: "Assess inventory management (API9)",
+          d: "Confirm old versions and non-production hosts are decommissioned; test any reachable staging/debug APIs." },
+        { id: "API-CONS-01", l: "advanced", t: "Test safe consumption of third-party APIs (API10)",
+          d: "Review how the API trusts and validates data from upstream services and integrations." }
+      ]
+    },
+    {
+      id: "transport",
+      title: "Transport, Config & Data Protection",
+      wstg: "API8:2023",
+      items: [
+        { id: "API-CONF-01", l: "basic", t: "Enforce transport security",
+          d: "Confirm TLS is required, redirects to plaintext are absent and sensitive data is not sent unencrypted." },
+        { id: "API-CONF-02", l: "basic", t: "Review CORS policy",
+          d: "Assess allowed origins, credentials and methods for over-permissive cross-origin access." },
+        { id: "API-CONF-03", l: "intermediate", t: "Review error handling and verbosity",
+          d: "Trigger errors to check for stack traces, internal paths or data leakage in responses." },
+        { id: "API-CONF-04", l: "intermediate", t: "Review caching of sensitive responses",
+          d: "Confirm sensitive responses set appropriate cache controls and are not stored by shared caches." },
+        { id: "API-CONF-05", l: "advanced", t: "Review logging and monitoring coverage",
+          d: "Assess whether security-relevant events are logged sufficiently to detect abuse without leaking sensitive data." }
+      ]
+    },
+    {
+      id: "reporting",
+      title: "Reporting & Wrap-up",
+      wstg: "—",
+      items: [
+        { id: "API-REP-01", l: "basic", t: "Record evidence and reproduction steps",
+          d: "Capture requests, responses and clear, minimal reproduction steps for each finding." },
+        { id: "API-REP-02", l: "basic", t: "Rate severity and business impact",
+          d: "Assign severity and contextualise impact for the specific API and data handled." },
+        { id: "API-REP-03", l: "basic", t: "Provide remediation guidance",
+          d: "Give actionable, prioritised remediation mapped to the relevant OWASP API risk." },
+        { id: "API-REP-04", l: "basic", t: "Clean up test artifacts",
+          d: "Remove test data, tokens and accounts created during testing." }
+      ]
+    }
+  ]
+};

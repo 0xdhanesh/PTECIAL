@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PTECIAL — Pentest Checklists</title>
+  <meta name="description" content="Client-only web & API penetration testing checklists, basics to advanced." />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">◆</span>
+      <div>
+        <h1>PTECIAL</h1>
+        <p class="tagline">Pentest checklists · basics to advanced</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <label class="select-wrap">
+        <span class="sr-only">Checklist</span>
+        <select id="checklist-select" aria-label="Choose checklist"></select>
+      </label>
+
+      <div class="search-wrap">
+        <input id="search" type="search" placeholder="Search — press /" aria-label="Search items" autocomplete="off" />
+        <kbd class="search-hint">/</kbd>
+      </div>
+
+      <label class="select-wrap">
+        <span class="sr-only">Level filter</span>
+        <select id="level-filter" aria-label="Filter by level">
+          <option value="all">All levels</option>
+          <option value="basic">Basic</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
+        </select>
+      </label>
+
+      <button id="theme-toggle" class="btn ghost" title="Toggle theme" aria-label="Toggle theme">☾</button>
+    </div>
+  </header>
+
+  <div class="subbar">
+    <div class="progress-wrap" title="Checked items">
+      <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+      <span id="progress-label" class="progress-label">0 / 0</span>
+    </div>
+    <div class="ref-note"><span id="ref-note"></span></div>
+    <div class="actions">
+      <button id="expand-all" class="btn ghost sm">Expand all</button>
+      <button id="collapse-all" class="btn ghost sm">Collapse all</button>
+      <label class="chk-inline"><input type="checkbox" id="hide-checked" /> Hide done</label>
+      <button id="download-md" class="btn primary">↓ Download Markdown</button>
+      <button id="import-md" class="btn ghost">↑ Import</button>
+      <input id="import-file" type="file" accept=".md,text/markdown,text/plain" hidden />
+      <button id="reset-progress" class="btn ghost sm danger">Reset</button>
+    </div>
+  </div>
+
+  <main id="content" class="content" aria-live="polite"></main>
+
+  <footer class="footer">
+    <span>Client-only · nothing leaves your browser · progress saved in localStorage</span>
+    <span id="last-saved"></span>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- Data (assigned to window.CHECKLISTS so it works from file:// and GitHub Pages alike) -->
+  <script src="data/web.js"></script>
+  <script src="data/api.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
