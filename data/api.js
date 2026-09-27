@@ -232,7 +232,17 @@ window.CHECKLISTS.api = {
         { id: "API-CONF-04", l: "intermediate", t: "Review caching of sensitive responses",
           d: "Confirm sensitive responses set appropriate cache controls and are not stored by shared caches." },
         { id: "API-CONF-05", l: "advanced", t: "Review logging and monitoring coverage",
-          d: "Assess whether security-relevant events are logged sufficiently to detect abuse without leaking sensitive data." }
+          d: "Assess whether security-relevant events are logged sufficiently to detect abuse without leaking sensitive data." },
+        { id: "API-CONF-06", l: "basic", t: "Strict-Transport-Security (HSTS) header",
+          d: "Confirm HSTS is set with an adequate max-age so clients refuse plaintext connections to the API host. Complements transport enforcement (API-CONF-01)." },
+        { id: "API-CONF-07", l: "basic", t: "X-Content-Type-Options: nosniff header",
+          d: "Confirm the header is set so responses are not MIME-sniffed — important where JSON responses might otherwise be interpreted as HTML/script." },
+        { id: "API-CONF-08", l: "intermediate", t: "Enforce and validate Content-Type",
+          d: "Confirm responses declare the correct Content-Type (e.g. application/json) and the API rejects unexpected request content types, reducing content-confusion and XSS risk when responses are rendered." },
+        { id: "API-CONF-09", l: "intermediate", t: "Remove server/framework version banners",
+          d: "Flag version-disclosing response headers (Server, X-Powered-By, X-AspNet-Version) that aid targeted attacks and should be suppressed." },
+        { id: "API-CONF-10", l: "intermediate", t: "Security headers on browser-facing responses",
+          d: "For any HTML the API serves (API docs/Swagger UI, error pages, OAuth screens), confirm CSP, X-Frame-Options/frame-ancestors and X-Content-Type-Options are applied." }
       ]
     },
     {

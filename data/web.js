@@ -49,8 +49,8 @@ window.CHECKLISTS.web = {
       items: [
         { id: "WEB-CONF-01", l: "basic", t: "Review TLS configuration",
           d: "Check protocol versions, cipher suites, certificate validity and HSTS. Flag deprecated protocols and mixed content." },
-        { id: "WEB-CONF-02", l: "basic", t: "Review security headers",
-          d: "Assess Content-Security-Policy, X-Content-Type-Options, Referrer-Policy, Permissions-Policy and cookie attributes (Secure, HttpOnly, SameSite)." },
+        { id: "WEB-CONF-02", l: "basic", t: "Baseline security-header review",
+          d: "Confirm the standard response-header baseline is present across pages and responses. See the Security Response Headers section for per-header checks and the issue each mitigates." },
         { id: "WEB-CONF-03", l: "basic", t: "Test HTTP methods",
           d: "Enumerate allowed methods per endpoint and check for unsafe or unintended methods (e.g. PUT, DELETE, TRACE) being accepted." },
         { id: "WEB-CONF-04", l: "intermediate", t: "Look for default and sample content",
@@ -61,6 +61,39 @@ window.CHECKLISTS.web = {
           d: "Check for publicly accessible object storage and any reachable cloud metadata endpoints from server-side request contexts." },
         { id: "WEB-CONF-07", l: "advanced", t: "Review subdomain and DNS takeover risk",
           d: "Identify dangling DNS records pointing to unclaimed third-party services that could be claimed by an attacker." }
+      ]
+    },
+    {
+      id: "headers",
+      title: "Security Response Headers",
+      wstg: "WSTG-CONF-12",
+      items: [
+        { id: "WEB-HDR-01", l: "basic", t: "Content-Security-Policy (CSP) — XSS / injection / data exfiltration",
+          d: "Check for a CSP that meaningfully restricts sources. Flag missing policy, 'unsafe-inline'/'unsafe-eval', wildcard or overly broad source lists, and missing object-src 'none' and base-uri. CSP is defence-in-depth for XSS (WEB-INPV-01/02/03)." },
+        { id: "WEB-HDR-02", l: "basic", t: "X-Content-Type-Options: nosniff — MIME sniffing",
+          d: "Confirm the header is set so browsers do not sniff response content types, preventing content-type confusion that can turn uploads or data into executable script." },
+        { id: "WEB-HDR-03", l: "basic", t: "X-Frame-Options / CSP frame-ancestors — clickjacking",
+          d: "Confirm framing is restricted via frame-ancestors (preferred) or X-Frame-Options on sensitive, state-changing pages. Ties to clickjacking testing (WEB-CLNT-02)." },
+        { id: "WEB-HDR-04", l: "basic", t: "Strict-Transport-Security (HSTS) — TLS downgrade / SSL stripping",
+          d: "Confirm HSTS is present with an adequate max-age and, where appropriate, includeSubDomains and preload, so clients refuse plaintext connections." },
+        { id: "WEB-HDR-05", l: "basic", t: "Set-Cookie attributes — session theft / CSRF",
+          d: "Confirm session cookies use Secure, HttpOnly and an appropriate SameSite value, and consider __Host-/__Secure- prefixes. Ties to session and CSRF testing (WEB-SESS-01/05)." },
+        { id: "WEB-HDR-06", l: "intermediate", t: "Referrer-Policy — URL / token leakage",
+          d: "Confirm a restrictive Referrer-Policy so sensitive URLs, tokens or identifiers are not leaked to third parties via the Referer header." },
+        { id: "WEB-HDR-07", l: "intermediate", t: "Permissions-Policy — powerful browser features",
+          d: "Confirm unused powerful features (camera, microphone, geolocation, payment, etc.) are disabled to reduce abuse surface if the page is compromised." },
+        { id: "WEB-HDR-08", l: "intermediate", t: "Cache-Control on sensitive responses — data exposure via cache",
+          d: "Confirm sensitive responses set no-store / no-cache (and appropriate Pragma/Expires) so credentials or PII are not retained by the browser or shared caches. Ties to WEB-CLNT-04." },
+        { id: "WEB-HDR-09", l: "intermediate", t: "CORS headers — over-permissive cross-origin access",
+          d: "Review Access-Control-Allow-Origin/Credentials/Methods for reflected or wildcard origins combined with credentials. Ties to CORS testing (WEB-CLNT-01)." },
+        { id: "WEB-HDR-10", l: "intermediate", t: "Information-disclosure & legacy headers",
+          d: "Flag version-disclosing headers (Server, X-Powered-By, X-AspNet-Version) for removal, and confirm the deprecated X-XSS-Protection is disabled (0) or absent rather than relied upon." },
+        { id: "WEB-HDR-11", l: "advanced", t: "Cross-origin isolation (COOP / COEP / CORP) — XS-Leaks / side-channels",
+          d: "For sensitive origins, assess Cross-Origin-Opener-Policy, Cross-Origin-Embedder-Policy and Cross-Origin-Resource-Policy to limit cross-window and cross-origin leakage. Ties to WEB-CLNT-03." },
+        { id: "WEB-HDR-12", l: "advanced", t: "Clear-Site-Data — incomplete logout",
+          d: "Where used, confirm Clear-Site-Data on logout clears cookies, storage and cache so a shared or stolen device retains no authenticated state." },
+        { id: "WEB-HDR-13", l: "advanced", t: "CSP reporting & Trusted Types — DOM XSS hardening",
+          d: "Assess report-to/report-uri for policy monitoring and, for high-assurance apps, require-trusted-types-for 'script' to constrain dangerous DOM sinks. Ties to DOM XSS (WEB-INPV-03)." }
       ]
     },
     {
