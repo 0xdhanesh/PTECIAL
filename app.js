@@ -7,7 +7,7 @@ const notebook = {id:'shared-fields'};
 const attachments = new Map();
 const prefix = 'ptecial.notebook.v2.';
 const objectURLs = new Set();
-const empty = () => ({outcome:'Open', severity:'Not assessed', impact:'', entries:[]});
+const empty = () => ({outcome:'Open', severity:'Not assessed', impact:'', reason:'', entries:[]});
 let active = library[0], db, storageProblem = '', busy = 0;
 const message = (s, error = false) => {
   $('#saved').textContent = s;
@@ -26,6 +26,7 @@ function record(id) {
   const r = records.get(id);
   if (!r.severity) r.severity = 'Not assessed';
   if (r.impact === undefined) r.impact = '';
+  if (r.reason === undefined) r.reason = '';
   return r;
 }
 function save(id) {
@@ -151,6 +152,13 @@ function caseView(c) {
   $('h4',node).textContent=c.title; $('.procedure',node).textContent=c.procedure;
   $('.evidence p',node).textContent=c.evidence;
   if (c.exercise) $('.evidence',node).before(exerciseView(c.exercise));
+  if (c.related && c.related.length) {
+    const rel = make('p');
+    rel.className = 'related';
+    rel.append(make('strong','Related: '));
+    rel.append(document.createTextNode(c.related.join(', ')));
+    $('.evidence', node).after(rel);
+  }
 
   const risk = make('div');
   risk.className = 'risk';
@@ -171,7 +179,24 @@ function caseView(c) {
   $('.caseactions', node).before(risk);
 
   const outcome = $('.outcome',node); outcome.value=r.outcome;
-  outcome.onchange = () => {r.outcome=outcome.value; save(c.id); if ($('#status').value) render();};
+  const reasonBox = make('div');
+  reasonBox.className = 'reason';
+  const reasonLabel = make('label', 'Reason (out of scope)');
+  const reason = make('input');
+  reason.placeholder = 'Why this case is not applicable';
+  reason.value = r.reason || '';
+  reason.oninput = () => { r.reason = reason.value; save(c.id); };
+  reasonLabel.append(reason);
+  reasonBox.append(reasonLabel);
+  reasonBox.hidden = r.outcome !== 'Not applicable';
+  outcome.onchange = () => {
+    r.outcome = outcome.value;
+    reasonBox.hidden = outcome.value !== 'Not applicable';
+    save(c.id);
+    if ($('#status').value) render();
+  };
+  $('.caseactions', node).after(reasonBox);
+
   const entries = $('.entries',node);
   entries.append(...r.entries.map(e => entryView(c,e)));
   $('.addnote',node).onclick = () => addEntry(c,'note',entries);
@@ -191,6 +216,7 @@ function render() {
   for (const c of active.cases) {
     if ($('#level').value && c.level !== $('#level').value) continue;
     if ($('#status').value && record(c.id).outcome !== $('#status').value) continue;
+    if ($('#severity').value && record(c.id).severity !== $('#severity').value) continue;
     if (!JSON.stringify(c).toLowerCase().includes(term)) continue;
     if (!groups.has(c.category)) groups.set(c.category,[]);
     groups.get(c.category).push(c);
@@ -216,7 +242,9 @@ function dataURL(blob) {
 }
 async function exportReport() {
   if (busy) {message('Wait for the images to finish saving.',true);return;}
-  const areas=$('#scope').value==='all'?library:[active];
+  const scope = $('#scope').value;
+  const areas = scope === 'all' ? library : [active];
+  const findingsOnly = scope === 'findings';
   const button=$('#download');button.disabled=true;button.textContent='Preparing…';
   try {
     const lines=['# PTECIAL assessment notebook','',new Date().toISOString()];
@@ -227,11 +255,14 @@ async function exportReport() {
       lines.push('','## '+area.name);
       let category='';
       for (const c of area.cases) {
-        if (c.category!==category) {category=c.category;lines.push('','### '+category);}
         const r=record(c.id);
+        if (findingsOnly && r.outcome !== 'Finding') continue;
+        if (c.category!==category) {category=c.category;lines.push('','### '+category);}
         lines.push('','#### '+c.id+' · '+c.title,'',c.level+' · ['+c.reference+']('+refURL(c.reference)+') · '+r.outcome);
         if (r.severity && r.severity !== 'Not assessed') lines.push('Severity: '+r.severity);
         if (r.impact) lines.push('Impact: '+r.impact);
+        if (r.outcome === 'Not applicable' && r.reason) lines.push('Out of scope reason: '+r.reason);
+        if (c.related && c.related.length) lines.push('Related: '+c.related.join(', '));
         lines.push('',c.procedure,'','Acceptance evidence: '+c.evidence);
         if (c.exercise) {
           const {setup, steps, command, interpret} = c.exercise;
@@ -266,7 +297,17 @@ async function openImages() {
     attachments.get(item.id).push(item);
   }
 }
+function checkDuplicateIds() {
+  const seen = new Map();
+  for (const area of library) {
+    for (const c of area.cases) {
+      if (seen.has(c.id)) console.warn('Duplicate case ID:', c.id, 'in', area.id, 'and', seen.get(c.id));
+      else seen.set(c.id, area.id);
+    }
+  }
+}
 async function start() {
+  checkDuplicateIds();
   for (const id of [notebook.id, ...byId.keys()]) {
     const raw=read(prefix+id);
     if (raw) try {records.set(id,JSON.parse(raw));} catch {storageProblem='A saved case could not be read';}
@@ -292,7 +333,7 @@ async function start() {
     $('#domain-select').add(new Option(area.name,area.id));
   }
   $('#domain-select').onchange=e=>areaSelect(library.find(a=>a.id===e.target.value));
-  $('#search').oninput=render;$('#status').onchange=render;$('#level').onchange=render;
+  $('#search').oninput=render;$('#status').onchange=render;$('#level').onchange=render;$('#severity').onchange=render;
   document.onkeydown=e=>{
     if(e.key==='/' && !e.ctrlKey && !e.metaKey && !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName) && !$('#report').open){e.preventDefault();$('#search').focus();}
     if(e.key==='Escape' && e.target===$('#search')){$('#search').value='';render();}
