@@ -1,15 +1,48 @@
-# PTECIAL assessment notebook
+# PTECIAL
 
-Open `index.html` in a browser or serve this directory as a static site. All application files are local. The notebook requires no account, build step, or backend.
+Static, client-side assessment notebook for authorized penetration testing and security assurance.
 
-Choose an assessment area and use the search, difficulty, or outcome filters to find a case. Each case has a procedure, an acceptance criterion, and an OWASP or MITRE CWE reference. Basic cases use a public application, documentation, or release URL. Intermediate cases use manual review and recorded evidence. Advanced cases trace a complete workflow using test accounts, fixtures, devices, or release records.
+Open `index.html` in a browser or serve the directory as a static site. No build step, backend, or account is required.
 
-Use **Add field** at the top of the page for engagement details such as scope, build or reviewer. These fields follow you across targets and appear once in either report scope. Use **Note** and **Image** on individual cases. Fields previously saved on a case remain editable and export with that case. Notes, field edits and outcomes save in the current browser profile. Images save when the attachment transaction completes. Clearing site data removes local records.
+## Usage
 
-Open **Run the assessment** for prerequisites, ordered observations, command examples where applicable, and help interpreting results. Set the named variables to your own approved URLs, packages, certificates or redacted exports. PowerShell examples are labeled in the preparation text. Commands are displayed as text for the reviewer.
+- Select an assessment area.
+- Filter by search, difficulty (Basic / Intermediate / Advanced), or outcome.
+- Record notes, images, and engagement fields. Data is stored in the browser profile.
+- Export the current area or full notebook as Markdown.
 
-Each file in `targets/` contains one target's case definitions, including its exercises. Keep case IDs stable when editing content because saved evidence uses those IDs. The script tags in `index.html` set the display order and support opening the notebook from disk.
+Each case contains a procedure, acceptance evidence criterion, and CWE or OWASP reference. Case IDs must remain stable because saved evidence references them.
 
-The adversarial areas add authorized active validation for web, API, mobile, and IoT engagements while leaving the platform verification targets unchanged. The mobile, IoT, and API adversarial cases intentionally contain only high-level procedures and evidence criteria: no payloads, bypass strings, exploit steps, or active-attack commands. Review the engagement scope and request limits before testing. [`prompts/grok-case-generator.md`](prompts/grok-case-generator.md) contains bounded copy-and-paste prompts for drafting a missing case, generating safe probes outside the case library, and turning raw observations into evidence-ready findings. Generated content must be reviewed before use, and client secrets or identifying data should not be sent to third-party services.
+## Assessment areas
 
-**Export Markdown** downloads the current area or the full notebook, including cases, outcomes, multiline notes, named fields and embedded image data. Some Markdown viewers restrict embedded image display. Previous-version checklist notes found in the same browser storage are available below the case list under **Previous checklist notes**.
+Verification targets (documentation, configuration, and workflow review):
+
+- Web applications
+- API security
+- LLM applications
+- CI/CD
+- Thick clients (Windows, Linux)
+- Mobile (Android, iOS)
+- IoT
+- Reverse engineering
+- Firmware
+
+Adversarial targets (authorized active validation, high-level procedures only):
+
+- Web adversarial
+- API adversarial
+- Mobile adversarial
+- IoT adversarial
+- Thick-client adversarial
+- Firmware adversarial
+- LLM adversarial
+
+Adversarial cases intentionally omit payloads, bypass strings, and exploit steps. Review engagement scope and request limits before testing.
+
+## Prompts
+
+[`prompts/grok-case-generator.md`](prompts/grok-case-generator.md) contains bounded prompts for drafting missing cases and converting observations into evidence-ready findings. Review all generated content before use. Do not send secrets or client-identifying data to third-party services.
+
+## Data
+
+Notes, fields, outcomes, and images are stored locally in the browser. Clearing site data removes them. Markdown export includes cases, outcomes, notes, fields, and embedded images.
