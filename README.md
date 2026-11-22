@@ -10,4 +10,6 @@ Open **Run the assessment** for prerequisites, ordered observations, command exa
 
 Each file in `targets/` contains one target's case definitions, including its exercises. Keep case IDs stable when editing content because saved evidence uses those IDs. The script tags in `index.html` set the display order and support opening the notebook from disk.
 
+The **Adversarial testing** area adds authorized active reconnaissance and exploit-validation cases for web and API engagements. Review the engagement scope and request limits before running any command. [`prompts/grok-case-generator.md`](prompts/grok-case-generator.md) contains copy-and-paste prompts for drafting a missing case, generating bounded probes, and turning raw observations into evidence-ready findings. Generated content must be reviewed before use, and client secrets or identifying data should not be sent to third-party services.
+
 **Export Markdown** downloads the current area or the full notebook, including cases, outcomes, multiline notes, named fields and embedded image data. Some Markdown viewers restrict embedded image display. Previous-version checklist notes found in the same browser storage are available below the case list under **Previous checklist notes**.
