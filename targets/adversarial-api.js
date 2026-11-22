@@ -6,7 +6,7 @@ registerTarget({
     {
       "id": "API-ADV-01",
       "category": "Object authorization",
-      "reference": "CWE-639",
+      "reference": "CWE-639 · https://book.hacktricks.xyz/pentesting-web/idor",
       "title": "Systematically test object-level authorization",
       "level": "Intermediate",
       "procedure": "Build an inventory of object identifiers across paths, queries, bodies, nested relationships, exports, and asynchronous operations. With designated accounts, compare owner, peer, cross-tenant, and unowned-object decisions for read and state-changing operations.",
@@ -15,7 +15,7 @@ registerTarget({
     {
       "id": "API-ADV-02",
       "category": "Function authorization",
-      "reference": "CWE-862",
+      "reference": "CWE-862 · https://book.hacktricks.xyz/pentesting-web/idor",
       "title": "Test function-level authorization across roles",
       "level": "Advanced",
       "procedure": "Map documented and observed operations to the approved role model. Exercise each privileged function with designated lower, adjacent, expired, and removed roles, including alternate API versions and equivalent operations where they are in scope.",
@@ -24,7 +24,7 @@ registerTarget({
     {
       "id": "API-ADV-03",
       "category": "Request boundaries",
-      "reference": "CWE-915",
+      "reference": "CWE-915 · https://book.hacktricks.xyz/pentesting-web/mass-assignment",
       "title": "Test mass assignment and unexpected fields",
       "level": "Intermediate",
       "procedure": "Compare published request schemas, client-generated requests, server models, and response fields. Submit benign unexpected or read-only fields through designated test records and verify explicit allowlisting, nested-object handling, and immutable ownership attributes.",
@@ -33,7 +33,7 @@ registerTarget({
     {
       "id": "API-ADV-04",
       "category": "GraphQL controls",
-      "reference": "CWE-770",
+      "reference": "CWE-770 · https://book.hacktricks.xyz/network-services-pentesting/pentesting-web/graphql",
       "title": "Validate GraphQL depth, batching, and introspection controls",
       "level": "Advanced",
       "procedure": "Where GraphQL is in scope, compare schema exposure and resource controls across unauthenticated and approved roles. Exercise owner-approved query depth, aliasing, batching, pagination, and cost boundaries below the agreed load ceiling.",

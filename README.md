@@ -11,7 +11,7 @@ Open `index.html` in a browser or serve the directory as a static site. No build
 - Record notes, images, and engagement fields. Data is stored in the browser profile.
 - Export the current area or full notebook as Markdown.
 
-Each case contains a procedure, acceptance evidence criterion, and CWE or OWASP reference. Case IDs must remain stable because saved evidence references them.
+Each case contains a procedure, acceptance evidence criterion, and a reference (CWE, OWASP, or external). Case IDs must remain stable because saved evidence references them.
 
 ## Assessment areas
 
@@ -37,7 +37,7 @@ Adversarial targets (authorized active validation, high-level procedures only):
 - Firmware adversarial
 - LLM adversarial
 
-Adversarial cases intentionally omit payloads, bypass strings, and exploit steps. Review engagement scope and request limits before testing.
+Adversarial cases intentionally omit payloads, bypass strings, and exploit steps. Some cases include links to [HackTricks](https://book.hacktricks.xyz) as external references. Review engagement scope and request limits before testing.
 
 ## Prompts
 

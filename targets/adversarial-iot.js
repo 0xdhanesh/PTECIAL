@@ -33,7 +33,7 @@ registerTarget({
     {
       "id": "IOT-ADV-04",
       "category": "Messaging authorization",
-      "reference": "CWE-862",
+      "reference": "CWE-862 · https://book.hacktricks.xyz/network-services-pentesting/1883-pentesting-mqtt-mosquitto",
       "title": "Test MQTT authorization and subscription isolation",
       "level": "Advanced",
       "procedure": "With designated devices and tenants, exercise publish and subscribe operations across each documented topic class. Verify that device, tenant, role, retained-message, wildcard, and ownership-transfer boundaries are enforced by the broker.",
