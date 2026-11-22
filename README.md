@@ -7,13 +7,17 @@ Open `index.html` in a browser or serve the directory as a static site. No build
 ## Usage
 
 - Select an assessment area.
-- Filter by search, difficulty (Basic / Intermediate / Advanced), or outcome.
-- Set severity and impact on each case. Record notes, images, and engagement fields. Data is stored in the browser profile.
-- Export the current area or full notebook as Markdown (includes severity, impact, notes, and images).
+- Filter by search, difficulty, outcome, or severity.
+- Set severity and impact on each case. When marking a case Not applicable, record the reason. Record notes, images, and engagement fields. Data is stored in the browser profile.
+- Export the current area, full notebook, or findings only as Markdown (includes severity, impact, related cases, notes, and images).
 
-Each case contains a procedure, acceptance evidence criterion, and a reference (CWE, OWASP, or external). Case IDs must remain stable because saved evidence references them.
+Each case contains a procedure, acceptance evidence criterion, and a reference (CWE, OWASP, or external). Optional `related` arrays link verification and adversarial cases. Case IDs must remain stable because saved evidence references them.
 
 ## Assessment areas
+
+Pre-engagement:
+
+- Pre-engagement (scope, rules of engagement, data handling)
 
 Verification targets (documentation, configuration, and workflow review):
 
@@ -26,6 +30,8 @@ Verification targets (documentation, configuration, and workflow review):
 - IoT
 - Reverse engineering
 - Firmware
+- Cloud
+- Active Directory
 
 Adversarial targets (authorized active validation, high-level procedures only):
 
@@ -45,4 +51,4 @@ Adversarial cases intentionally omit payloads, bypass strings, and exploit steps
 
 ## Data
 
-Notes, fields, outcomes, severity, impact, and images are stored locally in the browser. Clearing site data removes them. Markdown export includes cases, outcomes, severity, impact, notes, fields, and embedded images.
+Notes, fields, outcomes, severity, impact, out-of-scope reasons, and images are stored locally in the browser. Clearing site data removes them. Markdown export includes cases, outcomes, severity, impact, related cases, notes, fields, and embedded images.
