@@ -8,8 +8,8 @@ Open `index.html` in a browser or serve the directory as a static site. No build
 
 - Select an assessment area.
 - Filter by search, difficulty (Basic / Intermediate / Advanced), or outcome.
-- Record notes, images, and engagement fields. Data is stored in the browser profile.
-- Export the current area or full notebook as Markdown.
+- Set severity and impact on each case. Record notes, images, and engagement fields. Data is stored in the browser profile.
+- Export the current area or full notebook as Markdown (includes severity, impact, notes, and images).
 
 Each case contains a procedure, acceptance evidence criterion, and a reference (CWE, OWASP, or external). Case IDs must remain stable because saved evidence references them.
 
@@ -45,4 +45,4 @@ Adversarial cases intentionally omit payloads, bypass strings, and exploit steps
 
 ## Data
 
-Notes, fields, outcomes, and images are stored locally in the browser. Clearing site data removes them. Markdown export includes cases, outcomes, notes, fields, and embedded images.
+Notes, fields, outcomes, severity, impact, and images are stored locally in the browser. Clearing site data removes them. Markdown export includes cases, outcomes, severity, impact, notes, fields, and embedded images.
