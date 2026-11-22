@@ -3,6 +3,7 @@ const $ = (s, root = document) => root.querySelector(s);
 const make = (tag, value) => Object.assign(document.createElement(tag), {textContent:value ?? ''});
 const byId = new Map(library.flatMap(area => area.cases.map(c => [c.id, c])));
 const records = new Map();
+const notebook = {id:'shared-fields'};
 const attachments = new Map();
 const prefix = 'ptecial.notebook.v2.';
 const objectURLs = new Set();
@@ -75,6 +76,30 @@ function entryView(c, entry) {
   box.append(remove);
   return box;
 }
+function addEntry(owner, kind, container) {
+  const entry = {kind, name:'', value:''};
+  record(owner.id).entries.push(entry);
+  save(owner.id);
+  const box = entryView(owner, entry);
+  container.append(box);
+  $('input,textarea', box).focus();
+}
+function exerciseView(exercise) {
+  const panel = make('details');
+  panel.className = 'exercise';
+  panel.append(make('summary', 'Run the assessment'));
+  panel.append(make('h5','Prepare'), make('p',exercise.setup));
+  const steps = make('ol');
+  for (const step of exercise.steps) steps.append(make('li',step));
+  panel.append(steps);
+  if (exercise.command) {
+    const block = make('pre');
+    block.append(make('code',exercise.command));
+    panel.append(block);
+  }
+  panel.append(make('h5','Interpret the result'), make('p',exercise.interpret));
+  return panel;
+}
 function imageTransaction(change) {
   return new Promise((resolve,reject) => {
     const tx = db.transaction('images','readwrite');
@@ -122,16 +147,12 @@ function caseView(c) {
   const link = $('.ref',node); link.href=refURL(c.reference); link.textContent=c.reference;
   $('h4',node).textContent=c.title; $('.procedure',node).textContent=c.procedure;
   $('.evidence p',node).textContent=c.evidence;
+  if (c.exercise) $('.evidence',node).before(exerciseView(c.exercise));
   const outcome = $('.outcome',node); outcome.value=r.outcome;
   outcome.onchange = () => {r.outcome=outcome.value; save(c.id); if ($('#status').value) render();};
   const entries = $('.entries',node);
   entries.append(...r.entries.map(e => entryView(c,e)));
-  for (const kind of ['note','field']) {
-    $('.add'+kind,node).onclick = () => {
-      const entry = {kind,name:'',value:''};r.entries.push(entry);save(c.id);
-      const box=entryView(c,entry);entries.append(box);$('input,textarea',box).focus();
-    };
-  }
+  $('.addnote',node).onclick = () => addEntry(c,'note',entries);
   const upload=$('.upload',node);
   $('.addimage',node).onclick=() => upload.click();
   upload.onchange=() => {attach(c,Array.from(upload.files));upload.value='';};
@@ -148,7 +169,7 @@ function render() {
   for (const c of active.cases) {
     if ($('#level').value && c.level !== $('#level').value) continue;
     if ($('#status').value && record(c.id).outcome !== $('#status').value) continue;
-    if (!Object.values(c).join(' ').toLowerCase().includes(term)) continue;
+    if (!JSON.stringify(c).toLowerCase().includes(term)) continue;
     if (!groups.has(c.category)) groups.set(c.category,[]);
     groups.get(c.category).push(c);
   }
@@ -177,6 +198,9 @@ async function exportReport() {
   const button=$('#download');button.disabled=true;button.textContent='Preparing…';
   try {
     const lines=['# PTECIAL assessment notebook','',new Date().toISOString()];
+    const shared = record(notebook.id).entries;
+    if (shared.length) lines.push('', '## Notebook fields');
+    for (const e of shared) lines.push('', literal(e.name+'\n'+e.value));
     for (const area of areas) {
       lines.push('','## '+area.name);
       let category='';
@@ -184,6 +208,12 @@ async function exportReport() {
         if (c.category!==category) {category=c.category;lines.push('','### '+category);}
         const r=record(c.id);
         lines.push('','#### '+c.id+' · '+c.title,'',c.level+' · ['+c.reference+']('+refURL(c.reference)+') · '+r.outcome,'',c.procedure,'','Acceptance evidence: '+c.evidence);
+        if (c.exercise) {
+          const {setup, steps, command, interpret} = c.exercise;
+          lines.push('', setup, '', ...steps.map((s,i) => (i+1)+'. '+s));
+          if (command) lines.push('',literal(command));
+          lines.push('',interpret);
+        }
         for (const e of r.entries) lines.push('',e.kind==='note'?'Note':'Custom field',literal(e.kind==='note'?e.value:e.name+'\n'+e.value));
         for (const image of attachments.get(c.id)||[]) lines.push('','Image',literal(image.name),'','![Evidence image]('+await dataURL(image.blob)+')');
       }
@@ -212,11 +242,14 @@ async function openImages() {
   }
 }
 async function start() {
-  for (const id of byId.keys()) {
+  for (const id of [notebook.id, ...byId.keys()]) {
     const raw=read(prefix+id);
     if (raw) try {records.set(id,JSON.parse(raw));} catch {storageProblem='A saved case could not be read';}
   }
   const previous=[];
+  $('#fields').append(...record(notebook.id).entries.map(e => entryView(notebook,e)));
+  $('#add-field').onclick = () => addEntry(notebook,'field',$('#fields'));
+  $('#add-field').disabled = false;
   for (const key of ['api','web','thick-windows','thick-linux']) {
     const raw=read('ptecial.state.'+key);
     if (raw) try {
