@@ -9,6 +9,7 @@ registerTarget({
       "reference": "CWE-639 · https://book.hacktricks.xyz/pentesting-web/idor",
       "title": "Systematically test object-level authorization",
       "level": "Intermediate",
+      "related": ["API-01"],
       "procedure": "Build an inventory of object identifiers across paths, queries, bodies, nested relationships, exports, and asynchronous operations. With designated accounts, compare owner, peer, cross-tenant, and unowned-object decisions for read and state-changing operations.",
       "evidence": "An object-operation matrix with account and tenant identity, object ownership, request location, authorization result, returned data class, and authoritative post-request state."
     },
@@ -18,6 +19,7 @@ registerTarget({
       "reference": "CWE-862 · https://book.hacktricks.xyz/pentesting-web/idor",
       "title": "Test function-level authorization across roles",
       "level": "Advanced",
+      "related": ["API-02"],
       "procedure": "Map documented and observed operations to the approved role model. Exercise each privileged function with designated lower, adjacent, expired, and removed roles, including alternate API versions and equivalent operations where they are in scope.",
       "evidence": "A role-to-operation matrix showing required role, actual identity state, server decision, side effects, audit event, and consistency across equivalent interfaces."
     },
@@ -27,6 +29,7 @@ registerTarget({
       "reference": "CWE-915 · https://book.hacktricks.xyz/pentesting-web/mass-assignment",
       "title": "Test mass assignment and unexpected fields",
       "level": "Intermediate",
+      "related": ["API-03"],
       "procedure": "Compare published request schemas, client-generated requests, server models, and response fields. Submit benign unexpected or read-only fields through designated test records and verify explicit allowlisting, nested-object handling, and immutable ownership attributes.",
       "evidence": "Baseline and modified request results showing field classification, validation decision, stored authoritative values, response projection, and absence or presence of unintended state change."
     },
