@@ -2,16 +2,23 @@
 
 Static, client-side assessment notebook for authorized penetration testing and security assurance.
 
-Open `index.html` in a browser or serve the directory as a static site. No build step, backend, or account is required.
+Open `index.html` in a browser or serve the directory as a static site. No build step, backend, or account is required. The notebook works fully offline once the files are on disk.
 
 ## Usage
 
 - Select an assessment area.
 - Filter by search, difficulty, outcome, or severity.
-- Set severity and impact on each case. When marking a case Not applicable, record the reason. Record notes, images, and engagement fields. Data is stored in the browser profile.
-- Export the current area, full notebook, or findings only as Markdown (includes severity, impact, related cases, notes, and images).
+- Set severity, impact, and retest date on each case. When marking a case Not applicable, record the reason.
+- Use **Custom case** to add a one-off case to the current area (stored locally).
+- Engagement metadata (Client, Engagement ID, Tester, dates) is pre-populated in Notebook fields and appears at the top of exports.
+- A findings summary shows counts by severity and a short list of open findings.
+- Export the current area, full notebook, or findings only as Markdown (includes severity, impact, retest, related cases, notes, and images).
 
 Each case contains a procedure, acceptance evidence criterion, and a reference (CWE, OWASP, or external). Optional `related` arrays link verification and adversarial cases. Case IDs must remain stable because saved evidence references them.
+
+## Offline / portable use
+
+Clone or download the repository and open `index.html` in any modern browser. All data stays in the browser profile. To move an engagement between machines, export Markdown and re-import notes manually, or copy the browser's site data.
 
 ## Assessment areas
 
@@ -53,4 +60,4 @@ Adversarial cases intentionally omit payloads, bypass strings, and exploit steps
 
 ## Data
 
-Notes, fields, outcomes, severity, impact, out-of-scope reasons, and images are stored locally in the browser. Clearing site data removes them. Markdown export includes cases, outcomes, severity, impact, related cases, notes, fields, and embedded images.
+Notes, fields, outcomes, severity, impact, retest dates, out-of-scope reasons, custom cases, and images are stored locally in the browser. Clearing site data removes them. Markdown export includes cases, outcomes, severity, impact, retest, related cases, notes, fields, and embedded images.
