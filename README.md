@@ -42,6 +42,8 @@ Adversarial targets (authorized active validation, high-level procedures only):
 - Thick-client adversarial
 - Firmware adversarial
 - LLM adversarial
+- Cloud adversarial
+- Active Directory adversarial
 
 Adversarial cases intentionally omit payloads, bypass strings, and exploit steps. Some cases include links to [HackTricks](https://book.hacktricks.xyz) as external references. Review engagement scope and request limits before testing.
 
