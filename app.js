@@ -7,8 +7,9 @@ const notebook = {id:'shared-fields'};
 const attachments = new Map();
 const prefix = 'ptecial.notebook.v2.';
 const objectURLs = new Set();
-const empty = () => ({outcome:'Open', severity:'Not assessed', impact:'', reason:'', entries:[]});
+const empty = () => ({outcome:'Open', severity:'Not assessed', impact:'', reason:'', retest:'', entries:[]});
 let active = library[0], db, storageProblem = '', busy = 0;
+const customCases = new Map();
 const message = (s, error = false) => {
   $('#saved').textContent = s;
   $('#saved').classList.toggle('error', error);
@@ -27,11 +28,13 @@ function record(id) {
   if (!r.severity) r.severity = 'Not assessed';
   if (r.impact === undefined) r.impact = '';
   if (r.reason === undefined) r.reason = '';
+  if (r.retest === undefined) r.retest = '';
   return r;
 }
 function save(id) {
   if (write(prefix + id, JSON.stringify(record(id)))) message(storageProblem || 'Saved on this device', Boolean(storageProblem));
   metrics();
+  updateFindingsSummary();
 }
 function metrics() {
   const ids = active.cases.map(c => c.id);
@@ -42,6 +45,36 @@ function metrics() {
   $('#evidence-count').textContent = evidence;
   $('#percent').textContent = Math.round(100 * reviewed / ids.length) + '%';
   $('#progress').value = 100 * reviewed / ids.length;
+}
+function updateFindingsSummary() {
+  const el = $('#findings-summary');
+  if (!el) return;
+  const findings = [];
+  const counts = {Critical:0, High:0, Medium:0, Low:0, Informational:0, 'Not assessed':0};
+  for (const area of library) {
+    for (const c of area.cases) {
+      const r = record(c.id);
+      if (r.outcome === 'Finding') {
+        findings.push({id:c.id, title:c.title, severity:r.severity, area:area.name});
+        counts[r.severity] = (counts[r.severity] || 0) + 1;
+      }
+    }
+  }
+  el.innerHTML = '';
+  const title = make('h3', 'Findings summary');
+  el.append(title);
+  const summary = make('p');
+  summary.textContent = Object.entries(counts).filter(([,n]) => n).map(([k,n]) => k + ': ' + n).join(' · ') || 'No findings yet.';
+  el.append(summary);
+  if (findings.length) {
+    const list = make('ul');
+    findings.slice(0, 20).forEach(f => {
+      const li = make('li', f.id + ' · ' + f.title + ' (' + f.severity + ')');
+      list.append(li);
+    });
+    if (findings.length > 20) list.append(make('li', '… and ' + (findings.length - 20) + ' more'));
+    el.append(list);
+  }
 }
 function areaSelect(area) {
   active = area;
@@ -175,7 +208,13 @@ function caseView(c) {
   imp.value = r.impact || '';
   imp.oninput = () => { r.impact = imp.value; save(c.id); };
   impLabel.append(imp);
-  risk.append(sevLabel, impLabel);
+  const retestLabel = make('label', 'Retest');
+  const retest = make('input');
+  retest.type = 'date';
+  retest.value = r.retest || '';
+  retest.onchange = () => { r.retest = retest.value; save(c.id); };
+  retestLabel.append(retest);
+  risk.append(sevLabel, impLabel, retestLabel);
   $('.caseactions', node).before(risk);
 
   const outcome = $('.outcome',node); outcome.value=r.outcome;
@@ -213,7 +252,8 @@ function render() {
   const closed=new Set(Array.from(root.querySelectorAll('details.group:not([open])'),n=>n.dataset.group));
   root.replaceChildren();
   const groups=new Map(), term=$('#search').value.trim().toLowerCase();
-  for (const c of active.cases) {
+  const cases = [...active.cases, ...(customCases.get(active.id) || [])];
+  for (const c of cases) {
     if ($('#level').value && c.level !== $('#level').value) continue;
     if ($('#status').value && record(c.id).outcome !== $('#status').value) continue;
     if ($('#severity').value && record(c.id).severity !== $('#severity').value) continue;
@@ -229,6 +269,7 @@ function render() {
   }
   if (!groups.size) root.append(make('p','No matching cases. Adjust the search or filters.'));
   metrics();
+  updateFindingsSummary();
 }
 function literal(value) {
   const runs=String(value).match(/`+/g) || [];
@@ -249,18 +290,20 @@ async function exportReport() {
   try {
     const lines=['# PTECIAL assessment notebook','',new Date().toISOString()];
     const shared = record(notebook.id).entries;
-    if (shared.length) lines.push('', '## Notebook fields');
-    for (const e of shared) lines.push('', literal(e.name+'\n'+e.value));
+    if (shared.length) lines.push('', '## Engagement metadata');
+    for (const e of shared) lines.push('', '**' + (e.name || 'Field') + ':** ' + e.value);
     for (const area of areas) {
       lines.push('','## '+area.name);
       let category='';
-      for (const c of area.cases) {
+      const cases = [...area.cases, ...(customCases.get(area.id) || [])];
+      for (const c of cases) {
         const r=record(c.id);
         if (findingsOnly && r.outcome !== 'Finding') continue;
         if (c.category!==category) {category=c.category;lines.push('','### '+category);}
         lines.push('','#### '+c.id+' · '+c.title,'',c.level+' · ['+c.reference+']('+refURL(c.reference)+') · '+r.outcome);
         if (r.severity && r.severity !== 'Not assessed') lines.push('Severity: '+r.severity);
         if (r.impact) lines.push('Impact: '+r.impact);
+        if (r.retest) lines.push('Retest: '+r.retest);
         if (r.outcome === 'Not applicable' && r.reason) lines.push('Out of scope reason: '+r.reason);
         if (c.related && c.related.length) lines.push('Related: '+c.related.join(', '));
         lines.push('',c.procedure,'','Acceptance evidence: '+c.evidence);
@@ -306,16 +349,53 @@ function checkDuplicateIds() {
     }
   }
 }
+function loadCustomCases() {
+  const raw = read(prefix + 'custom-cases');
+  if (raw) try {
+    const data = JSON.parse(raw);
+    for (const [areaId, cases] of Object.entries(data)) customCases.set(areaId, cases);
+  } catch {}
+}
+function saveCustomCases() {
+  const data = Object.fromEntries(customCases);
+  write(prefix + 'custom-cases', JSON.stringify(data));
+}
+function addCustomCase() {
+  const title = prompt('Case title');
+  if (!title) return;
+  const id = 'CUSTOM-' + Date.now().toString(36).toUpperCase();
+  const c = {id, category:'Custom', reference:'Engagement', title, level:'Intermediate', procedure:'', evidence:'Record evidence here.'};
+  if (!customCases.has(active.id)) customCases.set(active.id, []);
+  customCases.get(active.id).push(c);
+  saveCustomCases();
+  render();
+  message('Custom case added');
+}
 async function start() {
   checkDuplicateIds();
+  loadCustomCases();
   for (const id of [notebook.id, ...byId.keys()]) {
     const raw=read(prefix+id);
     if (raw) try {records.set(id,JSON.parse(raw));} catch {storageProblem='A saved case could not be read';}
+  }
+  const nb = record(notebook.id);
+  if (!nb.entries.length) {
+    nb.entries = [
+      {kind:'field', name:'Client', value:''},
+      {kind:'field', name:'Engagement ID', value:''},
+      {kind:'field', name:'Tester', value:''},
+      {kind:'field', name:'Start date', value:''},
+      {kind:'field', name:'End date', value:''}
+    ];
+    save(notebook.id);
   }
   const previous=[];
   $('#fields').append(...record(notebook.id).entries.map(e => entryView(notebook,e)));
   $('#add-field').onclick = () => addEntry(notebook,'field',$('#fields'));
   $('#add-field').disabled = false;
+  const addCase = make('button', '＋ Custom case');
+  addCase.onclick = addCustomCase;
+  $('#add-field').parentNode.append(addCase);
   for (const key of ['api','web','thick-windows','thick-linux']) {
     const raw=read('ptecial.state.'+key);
     if (raw) try {
