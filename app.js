@@ -7,7 +7,7 @@ const notebook = {id:'shared-fields'};
 const attachments = new Map();
 const prefix = 'ptecial.notebook.v2.';
 const objectURLs = new Set();
-const empty = () => ({outcome:'Open', entries:[]});
+const empty = () => ({outcome:'Open', severity:'Not assessed', impact:'', entries:[]});
 let active = library[0], db, storageProblem = '', busy = 0;
 const message = (s, error = false) => {
   $('#saved').textContent = s;
@@ -23,7 +23,10 @@ function write(key, value) {
 }
 function record(id) {
   if (!records.has(id)) records.set(id, empty());
-  return records.get(id);
+  const r = records.get(id);
+  if (!r.severity) r.severity = 'Not assessed';
+  if (r.impact === undefined) r.impact = '';
+  return r;
 }
 function save(id) {
   if (write(prefix + id, JSON.stringify(record(id)))) message(storageProblem || 'Saved on this device', Boolean(storageProblem));
@@ -148,6 +151,25 @@ function caseView(c) {
   $('h4',node).textContent=c.title; $('.procedure',node).textContent=c.procedure;
   $('.evidence p',node).textContent=c.evidence;
   if (c.exercise) $('.evidence',node).before(exerciseView(c.exercise));
+
+  const risk = make('div');
+  risk.className = 'risk';
+  const sevLabel = make('label', 'Severity');
+  const sev = make('select');
+  for (const opt of ['Not assessed','Critical','High','Medium','Low','Informational']) {
+    const o = make('option', opt); o.value = opt; if (opt === r.severity) o.selected = true; sev.append(o);
+  }
+  sev.onchange = () => { r.severity = sev.value; save(c.id); };
+  sevLabel.append(sev);
+  const impLabel = make('label', 'Impact');
+  const imp = make('input');
+  imp.placeholder = 'Business or technical impact';
+  imp.value = r.impact || '';
+  imp.oninput = () => { r.impact = imp.value; save(c.id); };
+  impLabel.append(imp);
+  risk.append(sevLabel, impLabel);
+  $('.caseactions', node).before(risk);
+
   const outcome = $('.outcome',node); outcome.value=r.outcome;
   outcome.onchange = () => {r.outcome=outcome.value; save(c.id); if ($('#status').value) render();};
   const entries = $('.entries',node);
@@ -207,7 +229,10 @@ async function exportReport() {
       for (const c of area.cases) {
         if (c.category!==category) {category=c.category;lines.push('','### '+category);}
         const r=record(c.id);
-        lines.push('','#### '+c.id+' · '+c.title,'',c.level+' · ['+c.reference+']('+refURL(c.reference)+') · '+r.outcome,'',c.procedure,'','Acceptance evidence: '+c.evidence);
+        lines.push('','#### '+c.id+' · '+c.title,'',c.level+' · ['+c.reference+']('+refURL(c.reference)+') · '+r.outcome);
+        if (r.severity && r.severity !== 'Not assessed') lines.push('Severity: '+r.severity);
+        if (r.impact) lines.push('Impact: '+r.impact);
+        lines.push('',c.procedure,'','Acceptance evidence: '+c.evidence);
         if (c.exercise) {
           const {setup, steps, command, interpret} = c.exercise;
           lines.push('', setup, '', ...steps.map((s,i) => (i+1)+'. '+s));
