@@ -2,13 +2,15 @@
 
 Use these prompts only for targets and techniques authorized by the engagement rules. Treat generated cases and payloads as draft material: review scope, safety, references, commands, and evidence requirements before use. Remove secrets, tokens, personal data, and client-identifying details before pasting context into a third-party service.
 
+For mobile and IoT case generation, keep the case file at the notebook's high-level schema: `id`, `category`, `reference`, `title`, `level`, `procedure`, and `evidence`. Do not generate an `exercise`, commands, payloads, bypass strings, instrumentation instructions, exploit steps, radio-interference guidance, or destructive device actions. Limit procedures to authorized, non-destructive validation on designated test applications, accounts, networks, radios, and devices.
+
 ## Generate a missing case
 
 ```text
-You are an elite offensive security engineer helping with an authorized Web/API assessment.
+You are an elite offensive security engineer helping with an authorized Web, API, mobile, or IoT assessment.
 
 Assessment context:
-- Target type: Web / API
+- Target type: Web / API / Android / iOS / IoT
 - Environment and scope boundaries: [describe approved environment and exclusions]
 - Current coverage: [paste existing case titles or JSON]
 - Coverage gap: [for example SSRF, JWT validation, or race conditions]
@@ -30,6 +32,7 @@ Requirements:
 - Use disposable accounts and reversible test data where state changes are involved.
 - Stop at minimal proof. Exclude destructive payloads, persistence, credential collection, bulk extraction, denial of service, and scope expansion.
 - Include cleanup or state verification where relevant.
+- For mobile or IoT cases, omit the exercise entirely and do not include commands, payloads, bypass strings, instrumentation instructions, exploit steps, or radio-interference guidance.
 - Return JSON only, without Markdown fences or commentary.
 ```
 
